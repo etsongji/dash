@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학교 업무 공유 대시보드</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: #2c3e50 !important;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 20px;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            transform: translateY(-2px);
+        }
+        
+        .schedule-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .schedule-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .schedule-table td {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            vertical-align: top;
+            min-height: 100px;
+        }
+        
+        .time-slot {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .task-item {
+            color: #333;
+            padding: 8px 12px;
+            margin: 2px 0;
+            border-radius: 8px;
+            font-size: 0.85em;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        /* 부서별 색상 */
+        .task-item.dept-교무기획부 {
+            background: linear-gradient(135deg, #FFE5E5 0%, #FFD1D1 100%);
+            border-color: #FFB3B3;
+        }
+        
+        .task-item.dept-교육과정부 {
+            background: linear-gradient(135deg, #E5F3FF 0%, #D1E9FF 100%);
+            border-color: #B3D9FF;
+        }
+        
+        .task-item.dept-교육연구부 {
+            background: linear-gradient(135deg, #E5FFE5 0%, #D1FFD1 100%);
+            border-color: #B3FFB3;
+        }
+        
+        .task-item.dept-체육예술건강교육부 {
+            background: linear-gradient(135deg, #FFF2E5 0%, #FFE6D1 100%);
+            border-color: #FFD9B3;
+        }
+        
+        .task-item.dept-진로진학상담부 {
+            background: linear-gradient(135deg, #F0E5FF 0%, #E6D1FF 100%);
+            border-color: #D9B3FF;
+        }
+        
+        .task-item.dept-방과후자공고부 {
+            background: linear-gradient(135deg, #E5FFFF 0%, #D1FFFF 100%);
+            border-color: #B3FFFF;
+        }
+        
+        .task-item.dept-학생생활안전부 {
+            background: linear-gradient(135deg, #FFE5F0 0%, #FFD1E6 100%);
+            border-color: #FFB3D9;
+        }
+        
+        .task-item.dept-교육정보부 {
+            background: linear-gradient(135deg, #E5F0FF 0%, #D1E6FF 100%);
+            border-color: #B3D9FF;
+        }
+        
+        .task-item.dept-인문사회교육부 {
+            background: linear-gradient(135deg, #F0FFE5 0%, #E6FFD1 100%);
+            border-color: #D9FFB3;
+        }
+        
+        .task-item.dept-과학중점교육부 {
+            background: linear-gradient(135deg, #FFE5F5 0%, #FFD1F0 100%);
+            border-color: #FFB3E6;
+        }
+        
+        .task-item.dept-1학년부 {
+            background: linear-gradient(135deg, #E5FFF0 0%, #D1FFE6 100%);
+            border-color: #B3FFD9;
+        }
+        
+        .task-item.dept-2학년부 {
+            background: linear-gradient(135deg, #FFF0E5 0%, #FFE6D1 100%);
+            border-color: #FFD9B3;
+        }
+        
+        .task-item.dept-3학년부 {
+            background: linear-gradient(135deg, #F0E5F5 0%, #E6D1F0 100%);
+            border-color: #D9B3E6;
+        }
+        
+        .task-item .department {
+            font-weight: bold;
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+        
+        .task-item .task-text {
+            margin-top: 4px;
+        }
+        
+        .delete-task {
+            position: absolute;
+            top: 2px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            color: #666;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .delete-task:hover {
+            background: rgba(0, 0, 0, 0.2);
+            color: #333;
+            transform: scale(1.1);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 10px 15px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .week-navigation {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        /* 반응형 디자인 개선 */
+        
+        /* 데스크톱 (1200px 이상) */
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1400px;
+            }
+            
+            .schedule-table th {
+                padding: 20px 15px;
+                font-size: 1.1em;
+            }
+            
+            .schedule-table td {
+                padding: 15px;
+                min-height: 120px;
+            }
+            
+            .task-item {
+                font-size: 0.9em;
+                padding: 10px 15px;
+            }
+        }
+        
+        /* 태블릿 (768px - 1199px) */
+        @media (min-width: 768px) and (max-width: 1199px) {
+            .schedule-table th {
+                padding: 12px 8px;
+                font-size: 0.9em;
+            }
+            
+            .schedule-table td {
+                padding: 8px;
+                min-height: 90px;
+            }
+            
+            .task-item {
+                font-size: 0.8em;
+                padding: 8px 10px;
+            }
+            
+            .time-slot {
+                font-size: 0.85em;
+            }
+        }
+        
+        /* 모바일 (767px 이하) */
+        @media (max-width: 767px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .navbar-brand {
+                font-size: 1.1em;
+            }
+            
+            .week-navigation {
+                padding: 10px;
+            }
+            
+            .week-navigation .btn {
+                font-size: 0.8em;
+                padding: 5px 10px;
+            }
+            
+            .schedule-table {
+                font-size: 0.7em;
+            }
+            
+            .schedule-table th {
+                padding: 8px 4px;
+                font-size: 0.8em;
+            }
+            
+            .schedule-table td {
+                padding: 4px;
+                min-height: 60px;
+            }
+            
+            .time-slot {
+                font-size: 0.7em;
+                padding: 4px;
+            }
+            
+            .task-item {
+                font-size: 0.65em;
+                padding: 4px 6px;
+                margin: 1px 0;
+            }
+            
+            .task-item .department {
+                font-size: 0.7em;
+            }
+            
+            .delete-task {
+                width: 16px;
+                height: 16px;
+                font-size: 8px;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            .form-control, .form-select {
+                padding: 8px 12px;
+                font-size: 0.9em;
+            }
+            
+            .btn {
+                font-size: 0.9em;
+                padding: 6px 12px;
+            }
+        }
+        
+        /* 초소형 모바일 (480px 이하) */
+        @media (max-width: 480px) {
+            .container {
+                padding: 5px;
+            }
+            
+            .schedule-table {
+                font-size: 0.6em;
+            }
+            
+            .schedule-table th {
+                padding: 4px 2px;
+                font-size: 0.7em;
+            }
+            
+            .schedule-table td {
+                padding: 2px;
+                min-height: 50px;
+            }
+            
+            .time-slot {
+                font-size: 0.6em;
+                padding: 2px;
+            }
+            
+            .task-item {
+                font-size: 0.55em;
+                padding: 3px 4px;
+            }
+            
+            .week-navigation .btn {
+                font-size: 0.7em;
+                padding: 4px 8px;
+            }
+            
+            .card-header {
+                font-size: 0.9em;
+                padding: 10px 15px;
+            }
+            
+            .form-label {
+                font-size: 0.9em;
+            }
+        }
+        
+        /* 가로 스크롤 처리 */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* 터치 친화적 버튼 */
+        @media (max-width: 767px) {
+            .btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .delete-task {
+                min-height: 24px;
+                min-width: 24px;
+            }
+        }
+        
+        /* 접근성 개선 */
+        .btn:focus, .form-control:focus, .form-select:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+        
+        /* 다크 모드 지원 */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a1a1a;
+                color: #ffffff;
+            }
+            
+            .card {
+                background-color: #2d2d2d;
+                color: #ffffff;
+            }
+            
+            .week-navigation {
+                background-color: #2d2d2d;
+                color: #ffffff;
+            }
+            
+            .schedule-table {
+                background-color: #2d2d2d;
+                color: #ffffff;
+            }
+            
+            .schedule-table td {
+                border-color: #444444;
+            }
+            
+            .time-slot {
+                background-color: #3d3d3d;
+                color: #ffffff;
+            }
+            
+            .task-item {
+                color: #333;
+                border-color: rgba(255,255,255,0.2);
+            }
+            
+            .delete-task {
+                background: rgba(255, 255, 255, 0.2);
+                color: #ccc;
+            }
+            
+            .delete-task:hover {
+                background: rgba(255, 255, 255, 0.3);
+                color: #fff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 네비게이션 바 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-school me-2"></i>
+                학교 업무 공유 대시보드
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- 주간 네비게이션 -->
+        <div class="week-navigation">
+            <div class="row align-items-center">
+                <div class="col-lg-4 col-md-4 col-sm-12 mb-2 mb-md-0">
+                    <button class="btn btn-outline-primary w-100" onclick="previousWeek()">
+                        <i class="fas fa-chevron-left me-1"></i><span class="d-none d-sm-inline">이전 주</span>
+                    </button>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-12 mb-2 mb-md-0">
+                    <h5 class="mb-0 text-center" id="weekDisplay">
+                        <span class="d-none d-md-inline">{{ week_dates[0].date.split('-')[0] }}년 {{ week_dates[0].date.split('-')[1] }}월 {{ week_dates[0].date.split('-')[2] }}일 ~ {{ week_dates[4].date.split('-')[1] }}월 {{ week_dates[4].date.split('-')[2] }}일</span>
+                        <span class="d-md-none">{{ week_dates[0].date.split('-')[1] }}/{{ week_dates[0].date.split('-')[2] }} ~ {{ week_dates[4].date.split('-')[1] }}/{{ week_dates[4].date.split('-')[2] }}</span>
+                    </h5>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary flex-fill" onclick="nextWeek()">
+                            <span class="d-none d-sm-inline">다음 주</span><i class="fas fa-chevron-right ms-1"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="goToToday()">
+                            <span class="d-none d-sm-inline">오늘</span>
+                            <span class="d-sm-none">Today</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 업무 입력 폼 -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-plus-circle me-2"></i>업무 입력
+            </div>
+            <div class="card-body">
+                <form id="taskForm">
+                    <div class="row">
+                        <div class="col-lg-2 col-md-6 col-sm-12 mb-3">
+                            <label for="department" class="form-label">부서</label>
+                            <select class="form-select" id="department" required>
+                                <option value="">부서 선택</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept }}">{{ dept }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-6 col-sm-12 mb-3">
+                            <label for="date" class="form-label">날짜</label>
+                            <input type="date" class="form-control" id="date" required>
+                        </div>
+                        <div class="col-lg-2 col-md-6 col-sm-12 mb-3">
+                            <label for="startTime" class="form-label">시작시간</label>
+                            <select class="form-select" id="startTime" required>
+                                <option value="">시작시간 선택</option>
+                                {% for time in time_slots %}
+                                <option value="{{ time }}">{{ time }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-6 col-sm-12 mb-3">
+                            <label for="endTime" class="form-label">끝시간 (선택사항)</label>
+                            <select class="form-select" id="endTime">
+                                <option value="">끝시간 선택 (연속 시간인 경우)</option>
+                                {% for time in time_slots %}
+                                <option value="{{ time }}">{{ time }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-4 col-md-12 col-sm-12 mb-3">
+                            <label for="task" class="form-label">업무 내용</label>
+                            <input type="text" class="form-control" id="task" placeholder="업무 내용을 입력하세요" required>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>추가
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 알림 메시지 -->
+        <div id="alertContainer"></div>
+
+        <!-- 로딩 표시 -->
+        <div id="loading" class="loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <!-- 주간 일정표 -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-calendar-alt me-2"></i>주간 일정표
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0 schedule-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 150px;">시간</th>
+                                {% for date in week_dates %}
+                                <th>{{ date.weekday }}<br><small>{{ date.display }}</small></th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for time_slot in time_slots %}
+                            <tr>
+                                <td class="time-slot">{{ time_slot }}</td>
+                                {% for date in week_dates %}
+                                <td id="cell-{{ date.date }}-{{ time_slot }}" class="task-cell">
+                                    <!-- 작업이 여기에 동적으로 추가됩니다 -->
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 전역 변수
+        let currentWeekStart = '{{ week_dates[0].date }}';
+        let scheduleData = {{ schedule_data | tojson }};
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 오늘 날짜를 기본값으로 설정
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            
+            // 시작시간 변경 시 끝시간 옵션 업데이트
+            document.getElementById('startTime').addEventListener('change', updateEndTimeOptions);
+            
+            // 스케줄 표시 업데이트
+            updateScheduleDisplay();
+        });
+
+        // 시작시간 변경 시 끝시간 옵션 업데이트
+        function updateEndTimeOptions() {
+            const startTime = document.getElementById('startTime').value;
+            const endTimeSelect = document.getElementById('endTime');
+            
+            // 기존 옵션 제거
+            endTimeSelect.innerHTML = '<option value="">끝시간 선택 (연속 시간인 경우)</option>';
+            
+            if (!startTime) return;
+            
+            const timeSlots = [
+                "조회 (08:30-08:40)",
+                "1교시 (08:40-09:30)",
+                "2교시 (09:40-10:30)",
+                "3교시 (10:40-11:30)",
+                "4교시 (11:40-12:30)",
+                "점심 (12:30-13:30)",
+                "5교시 (13:30-14:20)",
+                "6교시 (14:30-15:20)",
+                "7교시 (15:30-16:20)",
+                "정소 (16:20-16:40)"
+            ];
+            
+            const startIndex = timeSlots.indexOf(startTime);
+            
+            // 시작시간 이후의 시간대만 추가
+            for (let i = startIndex; i < timeSlots.length; i++) {
+                const option = document.createElement('option');
+                option.value = timeSlots[i];
+                option.textContent = timeSlots[i];
+                endTimeSelect.appendChild(option);
+            }
+        }
+
+        // 업무 추가 폼 제출
+        document.getElementById('taskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            addTask();
+        });
+
+        // 업무 추가 함수
+        function addTask() {
+            const department = document.getElementById('department').value;
+            const date = document.getElementById('date').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const task = document.getElementById('task').value;
+
+            if (!department || !date || !startTime || !task) {
+                showAlert('부서, 날짜, 시작시간, 업무 내용을 모두 입력해주세요.', 'warning');
+                return;
+            }
+
+            // 시간 유효성 검사
+            if (endTime && !isValidTimeRange(startTime, endTime)) {
+                showAlert('끝시간은 시작시간보다 뒤에 있어야 합니다.', 'warning');
+                return;
+            }
+
+            showLoading(true);
+
+            // 시간 범위 생성
+            const timeSlots = getTimeSlotsInRange(startTime, endTime);
+
+            // 각 시간대에 업무 추가
+            const promises = timeSlots.map(timeSlot => 
+                fetch('/api/add_task', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        department: department,
+                        date: date,
+                        time_slot: timeSlot,
+                        task: task
+                    })
+                }).then(response => response.json())
+            );
+
+            Promise.all(promises)
+                .then(results => {
+                    showLoading(false);
+                    const allSuccess = results.every(result => result.success);
+                    if (allSuccess) {
+                        showAlert(`${timeSlots.length}개 시간대에 업무가 추가되었습니다.`, 'success');
+                        // 폼 초기화
+                        document.getElementById('taskForm').reset();
+                        // 스케줄 새로고침
+                        refreshSchedule();
+                    } else {
+                        showAlert('일부 업무 추가에 실패했습니다.', 'danger');
+                    }
+                })
+                .catch(error => {
+                    showLoading(false);
+                    showAlert('오류가 발생했습니다.', 'danger');
+                    console.error('Error:', error);
+                });
+        }
+
+        // 시간 범위 유효성 검사
+        function isValidTimeRange(startTime, endTime) {
+            const timeSlots = [
+                "조회 (08:30-08:40)",
+                "1교시 (08:40-09:30)",
+                "2교시 (09:40-10:30)",
+                "3교시 (10:40-11:30)",
+                "4교시 (11:40-12:30)",
+                "점심 (12:30-13:30)",
+                "5교시 (13:30-14:20)",
+                "6교시 (14:30-15:20)",
+                "7교시 (15:30-16:20)",
+                "정소 (16:20-16:40)"
+            ];
+            
+            const startIndex = timeSlots.indexOf(startTime);
+            const endIndex = timeSlots.indexOf(endTime);
+            
+            return startIndex <= endIndex;
+        }
+
+        // 시간 범위 내의 모든 시간대 반환
+        function getTimeSlotsInRange(startTime, endTime) {
+            const timeSlots = [
+                "조회 (08:30-08:40)",
+                "1교시 (08:40-09:30)",
+                "2교시 (09:40-10:30)",
+                "3교시 (10:40-11:30)",
+                "4교시 (11:40-12:30)",
+                "점심 (12:30-13:30)",
+                "5교시 (13:30-14:20)",
+                "6교시 (14:30-15:20)",
+                "7교시 (15:30-16:20)",
+                "정소 (16:20-16:40)"
+            ];
+            
+            const startIndex = timeSlots.indexOf(startTime);
+            const endIndex = endTime ? timeSlots.indexOf(endTime) : startIndex;
+            
+            return timeSlots.slice(startIndex, endIndex + 1);
+        }
+
+        // 업무 삭제 함수
+        function deleteTask(date, timeSlot, taskIndex) {
+            if (!confirm('이 업무를 삭제하시겠습니까?')) {
+                return;
+            }
+
+            fetch('/api/delete_task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    date: date,
+                    time_slot: timeSlot,
+                    task_index: taskIndex
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    refreshSchedule();
+                } else {
+                    showAlert(data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                showAlert('오류가 발생했습니다.', 'danger');
+                console.error('Error:', error);
+            });
+        }
+
+        // 스케줄 새로고침
+        function refreshSchedule() {
+            fetch('/api/get_schedule')
+            .then(response => response.json())
+            .then(data => {
+                scheduleData = data;
+                updateScheduleDisplay();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // 스케줄 표시 업데이트
+        function updateScheduleDisplay() {
+            // 모든 셀 초기화
+            const cells = document.querySelectorAll('.task-cell');
+            cells.forEach(cell => {
+                cell.innerHTML = '';
+            });
+
+            // 데이터 표시
+            Object.keys(scheduleData).forEach(date => {
+                Object.keys(scheduleData[date]).forEach(timeSlot => {
+                    const cellId = `cell-${date}-${timeSlot}`;
+                    const cell = document.getElementById(cellId);
+                    
+                    if (cell) {
+                        scheduleData[date][timeSlot].forEach((task, index) => {
+                            const taskElement = document.createElement('div');
+                            taskElement.className = `task-item dept-${task.department}`;
+                            taskElement.innerHTML = `
+                                <button class="delete-task" onclick="deleteTask('${date}', '${timeSlot}', ${index})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <div class="department">${task.department}</div>
+                                <div class="task-text">${task.task}</div>
+                            `;
+                            cell.appendChild(taskElement);
+                        });
+                    }
+                });
+            });
+        }
+
+        // 이전 주
+        function previousWeek() {
+            const currentDate = new Date(currentWeekStart);
+            const previousWeek = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+            navigateToWeek(previousWeek.toISOString().split('T')[0]);
+        }
+
+        // 다음 주
+        function nextWeek() {
+            const currentDate = new Date(currentWeekStart);
+            const nextWeek = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+            navigateToWeek(nextWeek.toISOString().split('T')[0]);
+        }
+
+        // 오늘로 이동
+        function goToToday() {
+            const today = new Date().toISOString().split('T')[0];
+            navigateToWeek(today);
+        }
+
+        // 특정 주로 이동
+        function navigateToWeek(date) {
+            window.location.href = `/week/${date}`;
+        }
+
+        // 알림 표시
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertId = 'alert-' + Date.now();
+            
+            const alertHtml = `
+                <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            alertContainer.innerHTML = alertHtml;
+            
+            // 5초 후 자동 제거
+            setTimeout(() => {
+                const alert = document.getElementById(alertId);
+                if (alert) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        // 로딩 표시
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            loading.style.display = show ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html> 
